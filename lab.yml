@@ -1,0 +1,506 @@
+# ==========================================
+# Course: Software Defined Networking
+# Module: Network Device Commands with Python
+# Purpose: Hands on activity for interacting with network devices using Netmiko and ntc-templates
+# Filename: lab.yml
+# Author: Sheldon Swanson
+# Version: 1.0
+# Created: 10/2025
+# Updated: 10/2025
+# Notes: Parsers ignore these comments.
+# ==========================================
+title: Lab 2 — Network Device Commands with Python
+course: Software Defined Networking
+module: Network Automation Fundamentals
+lab_number: 2
+time_estimate: 90-120 Minutes
+
+
+#====================================================
+#   ____  _____    _    ____  __  __ _____
+#  |  _ \| ____|  / \  |  _ \|  \/  | ____|
+#  | |_) |  _|   / _ \ | | | | |\/| |  _|
+#  |  _ <| |___ / ___ \| |_| | |  | | |___
+#  |_| \_\_____/_/   \_\____/|_|  |_|_____|
+#====================================================
+
+repo_tree:
+  enabled: true
+  max_depth: 3
+  ignore:
+    - ".git"
+    - ".github"
+    - "_template"
+    - "_render"
+    - "__pycache__"
+    - ".venv"
+    - "venv"
+    - "node_modules"
+    - ".vscode"
+    - ".idea"
+    - "*.pyc"
+    - "logs"
+    - "screens"
+
+readme_topic:
+  - title: "Installing Python Libraries with pip"
+    content: > 
+      Terms in Python can sometimes be up to the individual communicating. Python comes with standard 
+      built-in libraries such as `os`, `sys`, `math`, `datetime`, and `json`. However there are many 
+      community developed that can easily be downloaded, imported, and used to help us write cleaner 
+      code. Netmiko for example include paramiko so when you download netmiko it additionally has a 
+      dependency on paramiko therefore paramiko is also installed when we install netmiko. There a few 
+      methods to install a python library with the most common being the `pip` command line utility. which
+      stands for 'Python Installer Package'.
+
+      You can find more information about pip here: https://pip.pypa.io/en/stable/ or by running `pip --help`.
+      In the example below we use pip to install the netmiko library which is a multi-vendor library that simplifies
+      and standardizes the process of connecting to network devices via SSH.
+
+    code_block:
+      language: bash
+      code: |
+        pip install netmiko
+
+  - title: "Maintain the `requirements.txt` File"
+    content: > 
+      When working on a project it is common to have multiple dependencies. To make it easier to manage
+      these dependencies we can use a `requirements.txt` file. This file is simply a text file that lists
+      the libraries and their versions that are required for the project. This makes it easy for others to
+      install the same dependencies by simply running a single command.
+
+      You can create a `requirements.txt` file manually or you can generate one using the `pip freeze` command.
+      The `pip freeze` command lists all the installed packages in the current environment along with their versions.
+      You can redirect this output to a `requirements.txt` file using the following command:
+
+    code_block:
+      language: bash
+      code: |
+        pip freeze > requirements.txt
+
+    code_notes: >
+      This will create a `requirements.txt` file in the current directory with a list of all the installed packages
+      and their versions. You can then share this file with others or use it to recreate the same environment later.
+
+  - title: "Install Dependencies from `requirements.txt`"
+    content: > 
+      To install the dependencies listed in a `requirements.txt` file, you can use the following command:
+
+    code_block:
+      language: bash
+      code: |
+        pip install -r requirements.txt
+
+    code_notes: >
+      This will read the `requirements.txt` file and install all the packages listed in it.
+
+  - title: "Using Virtual Environments"
+    content: > 
+      When working on multiple Python projects, it is common to have different dependencies and versions
+      of libraries for each project. To avoid conflicts between these dependencies, it is recommended to
+      use virtual environments. A virtual environment is a self-contained directory that contains its own
+      Python interpreter and libraries.
+
+      You can create a virtual environment using the `venv` module that comes with Python. To create a virtual
+      environment, you can use the following command:
+
+    code_block:
+      language: bash
+      code: |
+        python -m venv myenv
+        source myenv/bin/activate
+        pip install -r requirements.txt
+
+    code_notes: >
+      This will create a virtual environment named `myenv` in the current directory and activate it.
+      Once the virtual environment is activated, any packages you install using `pip` will be installed
+      in the virtual environment instead of the global Python environment which is responsible for some of your
+      system operations. You can then install the dependencies listed in the `requirements.txt` file without affecting
+      other projects or system operations.
+
+  - title: "Cleanup a Virtual Environment"
+    content: > 
+      To deactivate a virtual environment and return to the global Python environment, you can use the deactivate command. 
+      This will restore your PATH and other environment variables to their original state. You can then delete the virtual 
+      environment directory if you no longer need it. If you need it back again you can always recreate it.
+
+    code_block:
+      language: bash
+      code: |
+        deactivate
+
+        rm -rf myvenv
+
+  - title: "Using the dir(), help(), and inspect Modules"
+    content: >
+      When working with Python libraries, it is often helpful to explore the available classes, methods, and functions.
+      The `dir()` function can be used to list the attributes of a module or class. The `help()` function can be used
+      to display the documentation for a module, class, or function. The `inspect` module provides several useful functions
+      to get information about live objects such as modules, classes, methods, functions, tracebacks, frame objects, and code objects.
+
+      You can use these functions to explore the Netmiko library and identify the correct device type and method to send commands to the device.
+
+    code_block:
+      language: python
+      code: |
+        import netmiko
+        help(netmiko)
+        dir(netmiko)
+
+        inspect.getmembers(netmiko)
+
+    code_notes: >
+      This will display the documentation and attributes of the Netmiko library, allowing you to identify
+      the correct device type and method to use for your project.
+
+  - title: "Getting Credentials Securely"
+    content: >
+      When working with network devices, it is important to handle credentials securely. Hardcoding
+      credentials in your scripts can lead to security vulnerabilities if the code is shared or stored
+      in a public repository. Instead, you can use the `input()` function to prompt for the username and
+      the `getpass` module to securely prompt for the password without echoing it to the terminal.
+
+    code_block:
+      language: python
+      code: |
+        import getpass
+
+        username = input("Enter your username: ")
+        password = getpass.getpass("Enter your password: ")
+
+    code_notes: >
+      This will prompt the user to enter their username and password at runtime, ensuring that the
+      credentials are not stored in the code or visible in the terminal.
+
+  - title: "Device Setup for Netmiko"
+    content: >
+      To connect to a network device using Netmiko, you need to create a device dictionary that contains
+      the necessary connection parameters. The device dictionary should include the device type, host (IP address
+      or hostname), username, and password. You can also include optional parameters such as port, secret, and
+      timeout.
+
+    code_block:
+      language: python
+      code: |
+        device = {
+          "device_type": "cisco_ios",
+          "host": "sandbox-iosxe-latest-1.cisco.com",
+          "username": username,
+          "password": password,
+          "port": 22,
+          "secret": password,
+          "timeout": 10
+        }
+
+    code_notes: >
+      This device dictionary can then be passed to the Netmiko connection class to establish a connection
+      to the device.
+
+  - title: "ConnectHandler"
+    content: >
+      The `ConnectHandler` class in Netmiko is used to establish an SSH connection to a network device.
+      You can create an instance of the `ConnectHandler` class by passing the device dictionary as an argument.
+      Once the connection is established, you can use various methods to send commands to the device and retrieve
+      the output.
+
+    code_block:
+      language: python
+      code: |
+        from netmiko import ConnectHandler
+
+        net_connect = ConnectHandler(**device)
+        output = net_connect.send_command("show ip interface brief")
+        print(output)
+
+    code_notes: >
+      This code imports the `ConnectHandler` class from the Netmiko library, creates an instance of the class
+      using the device dictionary, and sends a command to the device. The output of the command is then printed
+      to the console.
+
+  - title: "Sending Commands"
+    content: >
+      The `send_command()` method of the `ConnectHandler` class is used to send a single command to the network device
+      and retrieve the output. You can pass the command as a string argument to the method. The method returns the
+      output of the command as a string.
+
+    code_block:
+      language: python
+      code: |
+        from netmiko import ConnectHandler
+
+        net_connect = ConnectHandler(**device)
+        output = net_connect.send_command("show ip interface brief")
+        print(output)
+
+    code_notes: >
+      This code imports the `ConnectHandler` class from the Netmiko library, creates an instance of the class
+      using the device dictionary, and sends a command to the device. The output of the command is then printed
+      to the console.
+
+  - title: "TextFSM and ntc-templates"
+    content: >
+      TextFSM is a Python library that allows you to parse unstructured text into structured data using templates.
+      The ntc-templates project provides a collection of pre-defined TextFSM templates for various network devices
+      and commands. You can use these templates to parse the output of commands sent to network devices using Netmiko.
+
+      To use ntc-templates, you need to install the library and set the `NET_TEXTFSM` environment variable to point
+      to the directory containing the templates. You can then use the `parse_output()` function from the `ntc_templates.parse` module
+      to parse the command output using the appropriate template.
+
+    code_block:
+      language: python
+      code: |
+        from ntc_templates.parse import parse_output
+
+        template = "cisco_ios_show_ip_interface_brief.textfsm"
+        parsed_output = parse_output(template, output)
+        print(parsed_output)
+
+    code_notes: >
+      This code imports the `parse_output()` function from the `ntc_templates.parse` module, specifies the template to use for parsing,
+      and parses the output of the command. The structured data is then printed to the console.
+
+  - title: "f-text Strings"
+    content: >
+      f-strings, also known as formatted string literals, are a way to embed expressions inside string literals,
+      using curly braces `{}`. They were introduced in Python 3.6 and provide a more readable and concise way to format strings.
+
+      To create an f-string, you simply prefix the string with the letter `f` or `F`. Inside the string, you can include
+      any valid Python expression within curly braces, and the expression will be evaluated at runtime and inserted into the string.
+
+    code_block:
+      language: python
+      code: |
+        interface = "GigabitEthernet0/1"
+        ip_address = "192.168.1.1"
+        subnet_mask = "255.255.255.0"
+
+        config = f"""
+        interface {interface}
+          ip address {ip_address} {subnet_mask}
+        """
+        print(config)
+
+    code_notes: >
+      This code defines variables for an interface name, IP address, and subnet mask, and then uses an f-string to create a multi-line configuration string.
+      The variables are embedded within the string using curly braces, and the resulting configuration is printed to the console.
+
+#=====================================================================
+#
+#   ___ _   _ ____ _____ ____  _   _  ____ _____ ___ ___  _   _ ____
+#  |_ _| \ | / ___|_   _|  _ \| | | |/ ___|_   _|_ _/ _ \| \ | / ___|
+#   | ||  \| \___ \ | | | |_) | | | | |     | |  | | | | |  \| \___ \
+#   | || |\  |___) || | |  _ <| |_| | |___  | |  | | |_| | |\  |___) |
+#  |___|_| \_|____/ |_| |_| \_\\___/ \____| |_| |___\___/|_| \_|____/
+#
+#=====================================================================
+# LAB 2 — NETWORK DEVICE COMMANDS WITH PYTHON
+# Software Defined Networking • Florida State College at Jacksonville
+# Worth 75 points
+
+# OBJECTIVES
+objectives:
+  - "Use Netmiko to establish SSH sessions to Cisco network devices."
+  - "Collect credentials securely using `input()` and `getpass.getpass()`."
+  - "Execute IOS 'show' commands and capture output programmatically."
+  - "Parse command output with ntc-templates for structured data."
+  - "Use f-strings to generate readable terminal or file output."
+  - "Implement error handling and logging for reliability and grading."
+
+# PREREQUISITES
+python_version: "3.11"
+accounts: ["GitHub", "Cisco DevNet"]
+devices: ["Cisco DevNet Always-On Catalyst 8k/9k Sandbox"]
+
+prereq:
+  - "Python basics: functions, classes, exceptions, and file I/O."
+  - "Understanding of SSH and network device access concepts."
+  - "GitHub workflow: clone, commit, push, and pull request."
+  - "Access to Cisco DevNet Always-On Sandbox and credentials."
+  - "Basic familiarity with Netmiko and TextFSM templates."
+  - "VS Code with dev container or local Python environment."
+
+# OVERVIEW
+overview: >
+  In this lab, you'll connect to a Cisco Catalyst 8k device in the Cisco DevNet Always-On Sandbox using
+  the Netmiko library. You'll authenticate securely using user input and `getpass`, execute several
+  "show" commands, capture and parse their output with `ntc-templates`, and generate clean, structured
+  summaries using f-strings. You'll log every step so the autograder can validate markers and ensure
+  safe, idempotent network automation practices.
+
+# SETUP
+before_you_begin: >
+  Ensure your Cisco DevNet Always-On Catalyst 8k sandbox is active and reachable.
+  Open the provided dev container or a local environment with Netmiko installed via requirements.txt.
+  Confirm connectivity with a simple ping to the device before proceeding.
+
+# RESOURCES
+resources:
+  - { title: "Cisco DevNet Always-On Sandboxes", url: "https://developer.cisco.com/site/sandbox/" }
+  - { title: "Netmiko Documentation", url: "https://ktbyers.github.io/netmiko/" }
+  - { title: "NTC Templates (TextFSM)", url: "https://github.com/networktocode/ntc-templates" }
+  - { title: "getpass — Secure password input", url: "https://docs.python.org/3/library/getpass.html" }
+  - { title: "Python logging", url: "https://docs.python.org/3/library/logging.html" }
+
+# DELIVERABLES
+deliverables:
+  - "`src/` contains: `main.py` and helper modules if used."
+  - "`logs/lab.log` contains required Netmiko connection and parsing markers."
+  - "Outputs (raw CLI or parsed data) saved under `data/raw/` or `data/reports/`."
+  - "Pull request open to main branch with all artifacts committed."
+# STEPS
+steps:
+  - title: "Clone the Repository"
+    goal: "Get your starter files locally."
+    actions: |
+      Clone your GitHub Classroom repo and `cd` into it.
+      Review the provided folder layout: `src/`, `data/`, and `logs/`.
+    done_when: |
+      - Repository opened and visible in VS Code or terminal.
+      - You have created a `logs/` directory if missing.
+    log_marker: "LAB2_START"
+
+  - title: "Open Dev Container"
+    goal: "Verify environment setup."
+    actions: |
+      Open the repo inside the dev container and wait for the image to finish loading.
+      Run `pip list` to verify Netmiko and ntc-templates are installed.
+    done_when: |
+      - Python 3.11+ confirmed.
+      - Both Netmiko and ntc-templates packages are listed.
+      - `[STEP 2] Dev Container Started` logged to `logs/lab.log`.
+    log_marker: "[STEP 2] Dev Container Started"
+
+  - title: "Collect Credentials Securely"
+    goal: "Prompt user for username and password safely."
+    actions: |
+      In your script, use:
+        - `username = input("Enter username: ")`
+        - `password = getpass.getpass("Enter password: ")`
+      Never hardcode credentials or commit them to GitHub.
+      Log `CREDENTIALS_COLLECTED` after both values are accepted.
+    done_when: |
+      - Password entry masked in terminal.
+      - Log file includes `CREDENTIALS_COLLECTED`.
+    log_marker: "CREDENTIALS_COLLECTED"
+
+  - title: "Connect to Device with Netmiko"
+    goal: "Establish an SSH connection to the Catalyst 8k."
+    actions: |
+      Use `ConnectHandler()` from Netmiko with parameters:
+        - device_type: "cisco_ios"
+        - host, username, password
+      Wrap your connection in try/except to handle `AuthenticationException`, `NetMikoTimeoutException`, or `SSHException`.
+      Log `CONNECT_OK` or `CONNECT_FAIL` accordingly.
+    done_when: |
+      - SSH connection succeeds and hostname banner returned.
+      - Log includes either `CONNECT_OK` or `CONNECT_FAIL`.
+    log_marker: "CONNECT_OK, CONNECT_FAIL"
+
+  - title: "Run Show Commands"
+    goal: "Collect output from the device."
+    actions: |
+      Execute a few key commands such as:
+        - `show version`
+        - `show ip interface brief`
+        - `show inventory`
+      Write each output to a separate file under `data/raw/`.
+      Log `CMD_RUN:<command>` for each command executed.
+    done_when: |
+      - Command outputs saved under `data/raw/`.
+      - Log file includes three or more `CMD_RUN` markers.
+    log_marker: "CMD_RUN"
+
+  - title: "Parse Output with NTC Templates"
+    goal: "Convert unstructured CLI output into structured data."
+    actions: |
+      Import `ntc_templates.parse_output()` or TextFSM-based helpers.
+      Parse each output and verify structured keys/values.
+      Log `PARSE_OK:<command>` or `PARSE_FAIL:<command>` accordingly.
+    done_when: |
+      - Parsed data validated (non-empty lists or dicts).
+      - Log includes all `PARSE_OK` markers for executed commands.
+    log_marker: "PARSE_OK"
+
+  - title: "Generate Report and Summary"
+    goal: "Use f-strings to summarize parsed device info."
+    actions: |
+      Extract key facts like hostname, model, version, and interface states.
+      Compose a formatted message using f-strings and print it to the terminal.
+      Optionally save to `data/reports/device_summary.txt`.
+      Log `REPORT_SAVED` once the file is written.
+    done_when: |
+      - Device summary printed and/or saved.
+      - Log includes `REPORT_SAVED`.
+    log_marker: "REPORT_SAVED"
+
+  - title: "Refactor, Log, and Submit"
+    goal: "Ensure consistent structure and final submission."
+    actions: |
+      Verify main program flow under `if __name__ == "__main__":`.
+      Close SSH session gracefully and log `LAB2_END`.
+      Commit all changes, push to GitHub, and open a pull request.
+    done_when: |
+      - PR opened with complete code and logs.
+      - Autograder markers found in `logs/lab.log`.
+    log_marker: "LAB2_END"
+
+# FAQ + TROUBLESHOOTING
+faq:
+  - q: "What if my connection times out?"
+    a: "Verify the sandbox is active and use the correct IP or hostname. Increase `timeout=10` if needed."
+  - q: "Why do I get empty parsed output?"
+    a: "Ensure the command matches an existing NTC template exactly—no aliases."
+  - q: "Can I print instead of saving a report?"
+    a: "Yes, printing to terminal is fine as long as `REPORT_SAVED` is logged."
+
+tips:
+  - title: "Connection Failures"
+    symptom: "AuthenticationException or SSHException raised."
+    fix: "Double-check credentials and host reachability; ensure SSH is enabled."
+  - title: "Template Parsing Errors"
+    symptom: "Returned list is empty."
+    fix: "Command syntax must exactly match template definitions."
+  - title: "File Writing Errors"
+    symptom: "FileNotFoundError when saving under data/."
+    fix: "Ensure directories exist and use relative paths from repo root."
+  - title: "Logging Not Written"
+    symptom: "`logs/lab.log` missing or empty."
+    fix: "Call `logging.basicConfig(filename='logs/lab.log', level=logging.INFO)` once at startup."
+
+# GRADING
+grading:
+  total_points: 75
+  rows:
+    - { step: "Step 2", requirement: "Dev Container opened; packages verified", points: 5 }
+    - { step: "Step 3", requirement: "Credentials collected securely (`getpass` used)", points: 5 }
+    - { step: "Step 4", requirement: "Successful connection to device (`CONNECT_OK`)", points: 10 }
+    - { step: "Step 5", requirement: "Three or more commands executed (`CMD_RUN` markers)", points: 10 }
+    - { step: "Step 6", requirement: "All outputs parsed successfully (`PARSE_OK` markers)", points: 10 }
+    - { step: "Step 7", requirement: "Readable report printed/saved (`REPORT_SAVED`)", points: 10 }
+    - { step: "Step 4–7", requirement: "Handled exceptions gracefully and logged results", points: 5 }
+    - { step: "Step 8", requirement: "PR submitted; all autograder markers present", points: 20 }
+
+# AUTOGRADING
+autograder:
+  log_path: "logs/lab.log"
+  required_markers:
+    - "LAB2_START"
+    - "[STEP 2] Dev Container Started"
+    - "CREDENTIALS_COLLECTED"
+    - "CONNECT_OK"
+    - "CMD_RUN"
+    - "PARSE_OK"
+    - "REPORT_SAVED"
+    - "LAB2_END"
+
+# SUBMISSION CHECKLIST
+submission_checklist:
+  - "`logs/lab.log` exists and includes LAB2_START/LAB2_END and all required markers."
+  - "Netmiko connection succeeds; output saved and parsed."
+  - "NTC templates applied correctly with structured output."
+  - "Device summary printed or saved with REPORT_SAVED logged."
+  - "Code follows modular structure and uses secure credential handling."
+  - "All work pushed and pull request open before deadline."
+
+license: "© 2025 Sheldon Swanson — Classroom use."
