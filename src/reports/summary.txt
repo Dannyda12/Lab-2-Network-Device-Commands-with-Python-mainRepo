@@ -1,0 +1,12 @@
+LAB 2 NETWORK DEVICE SUMMARY
+============================
+
+Command: show version
+Records parsed: 1
+
+Command: show ip interface brief
+Records parsed: 7
+
+Command: show inventory
+Records parsed: 3
+

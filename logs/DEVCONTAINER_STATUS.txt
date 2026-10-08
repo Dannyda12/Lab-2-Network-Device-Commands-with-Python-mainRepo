@@ -1,0 +1,10 @@
+================= DEVCONTAINER HEALTH =================
+Time (UTC): 2026-10-08T00:16:59.451666Z
+DNS resolution: PASS
+Internet reachability: PASS
+Required Python packages:
+  - netmiko: MISSING
+  - ntc_templates: MISSING
+Overall status: NOT READY ❌
+Details: logs/devcontainer_health.log
+=======================================================
