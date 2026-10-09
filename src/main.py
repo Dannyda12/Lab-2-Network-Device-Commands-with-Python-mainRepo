@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
+logging.info("LAB2_START")
 print("[STEP 2] DEV Container Started")
 logging.info("[STEP 2] DEV Container Started")
 
@@ -23,8 +23,8 @@ COMMANDS = [
     "show inventory",
 ]
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RAW_DIR = os.path.join(BASE_DIR, "raw")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
 REPORT_DIR = os.path.join(BASE_DIR, "reports")
 
 os.makedirs(RAW_DIR, exist_ok=True)
@@ -115,8 +115,8 @@ def main():
         connection.disconnect()
 
 if __name__ == "__main__":
-     main()
-
+      main()
+logging.info("LAB2_END")
 print("LAB2_END")
 
 

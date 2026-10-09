@@ -5,7 +5,7 @@ Command: show version
 Records parsed: 1
 
 Command: show ip interface brief
-Records parsed: 7
+Records parsed: 16
 
 Command: show inventory
 Records parsed: 3

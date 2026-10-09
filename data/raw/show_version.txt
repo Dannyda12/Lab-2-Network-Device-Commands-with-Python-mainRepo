@@ -17,9 +17,8 @@ software.
 
 
 ROM: IOS-XE ROMMON
-
-Cat8kv uptime is 16 hours, 23 minutes
-Uptime for this control processor is 16 hours, 25 minutes
+Cat8kv uptime is 1 day, 23 hours, 49 minutes
+Uptime for this control processor is 1 day, 23 hours, 50 minutes
 System returned to ROM by reload
 System image file is "bootflash:packages.conf"
 Last reload reason: reload
